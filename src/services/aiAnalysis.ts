@@ -89,7 +89,7 @@ export const generateQuizFromText = async (text: string): Promise<QuizQuestion[]
   if (!text || text.trim().length === 0) {
     throw new Error('Text to analyze cannot be empty');
   }
-  const prompt = `You are a teacher. Your job is to take a document and create a multiple choice test (with 4 questions) based on the content of the document. Each question should have 4 options and indicate the correct answer index (0-based). Respond ONLY with the JSON array, no explanation, no markdown, no extra text. Format:\n[\n  {\n    "question": "...",\n    "options": ["...", "...", "...", "..."],\n    "correctIndex": 0\n  },\n  ...\n]\nDocument:\n${text}`;
+  const prompt = `You are a teacher. Your job is to take a document and create a multiple choice test (with 4 questions) based on the content of the document. Each question should have 4 options and indicate the correct answer index (0-based). Respond ONLY with the JSON array, no explanation, have markdown, no extra text. Format:\n[\n  {\n    "question": "...",\n    "options": ["...", "...", "...", "..."],\n    "correctIndex": 0\n  },\n  ...\n]\nDocument:\n${text}`;
   const response = await fetch(`${API_URL}?key=${API_KEY}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -120,7 +120,7 @@ export const generateFlashcardsFromText = async (text: string): Promise<Flashcar
   if (!text || text.trim().length === 0) {
     throw new Error('Text to analyze cannot be empty');
   }
-  const prompt = `You are a helpful assistant. Read the following document and generate 5 flashcards. Each flashcard should have a 'front' (the question or prompt) and a 'back' (the answer or explanation). Respond ONLY with a JSON array, no explanation, no markdown, no extra text. Format:\n[\n  {\n    \"front\": \"...\",\n    \"back\": \"...\"\n  },\n  ...\n]\nDocument:\n${text}`;
+  const prompt = `You are a helpful assistant. Read the following document and generate 5 flashcards. Each flashcard should have a 'front' (the question or prompt) and a 'back' (the answer or explanation). Respond ONLY with a JSON array, no explanation, no markdown, no extra text. Format:\n[\n  {\n    "front": "...",\n    "back": "..."\n  },\n  ...\n]\nDocument:\n${text}`;
   const response = await fetch(`${API_URL}?key=${API_KEY}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -133,13 +133,14 @@ export const generateFlashcardsFromText = async (text: string): Promise<Flashcar
   }
   const data = await response.json();
   const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  console.log('AI flashcards raw response:', aiText);
   // Extract the first JSON array from the response
   const match = aiText.match(/\[[\s\S]*\]/);
-  if (!match) throw new Error('Failed to find flashcards JSON in AI response');
+  if (!match) throw new Error('Failed to find flashcards JSON in AI response. Full response: ' + aiText);
   try {
     const flashcards = JSON.parse(match[0]);
     return flashcards;
   } catch {
-    throw new Error('Failed to parse flashcards from AI response');
+    throw new Error('Failed to parse flashcards from AI response. Full response: ' + aiText);
   }
 }; 

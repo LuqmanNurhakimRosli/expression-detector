@@ -11,7 +11,7 @@ import Note from './pages/Note';
 import Quizzez from './pages/Quizzez';
 import Flashcard from './pages/Flashcard';
 import NotFound from './pages/NotFound';
-
+import { Analytics } from "@vercel/analytics/react"
 
 function App() {
   return (
@@ -40,6 +40,7 @@ function App() {
           </Route>
         </Routes>
       </Router>
+      <Analytics />
     </AuthProvider>
   );
 }
